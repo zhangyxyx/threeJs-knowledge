@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>bar test World Population Visualization</title>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/dat.gui@0.7.6/build/dat.gui.min.js"></script>
+    <link type="text/css" rel="stylesheet" href="https://cdn.jsdelivr.net/npm/maptalks/dist/maptalks.css">
+    <script type="text/javascript" src="./lib/maptalks.js"></script>
+    <script type="text/javascript" src="./build/three.min.js"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/maptalks.three@latest/dist/maptalks.three.js"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/dat.gui@0.7.6/build/dat.gui.min.js"></script>
+
+    
+    <script type="text/javascript" src="./js/shaders/LuminosityHighPassShader.js"></script>
+    <script type="text/javascript" src="./js/postprocessing/EffectComposer.js"></script>
+    <script type="text/javascript" src="./js/postprocessing/UnrealBloomPass.js"></script>
+    <script type="text/javascript" src="./js/postprocessing/RenderPass.js"></script>
+    <script type="text/javascript" src="./js/shaders/CopyShader.js"></script>
+    <script type="text/javascript" src="./js/postprocessing/ShaderPass.js"></script>
+    <script type="text/javascript" src="./js/loaders/OBJLoader.js"></script>
+    <script type="text/javascript" src="./js/loaders/DDSLoader.js"></script>
+    <script type="text/javascript" src="./js/loaders/MTLLoader.js"></script>
+    <style>
+        html,
+        body {
+            margin: 0px;
+            height: 100%;
+            width: 100%;
+        }
+
+        #map {
+            width: 100%;
+            height: 100%;
+            background-color: #000;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="map"></div>
+    <script>
+        window.winscene
+        window.wincamera
+        window.renderer
+        window.map = new maptalks.Map("map", {
+            center: [118.787,32.0276],
+            zoom: 17.5,
+            pitch: 69,
+            bearing:0,
+            centerCross: true,
+            doubleClickZoom: false,
+            baseLayer: new maptalks.TileLayer('tile', {
+                urlTemplate: 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png',
+                subdomains: ['a','b','c','d'],
+                attribution: '',
+                cssFilter : 'sepia(100%) invert(90%)',
+            }),
+        });
+        window.threeLayer = new maptalks.ThreeLayer('t', {
+            forceRenderOnMoving: true,
+            forceRenderOnRotating: true
+        });
+        map.setBearing(0);
+        threeLayer.prepareToDraw = function (gl, scene, camera) {
+            var that=this 
+            renderer=this.getThreeRenderer();
+            const light = new THREE.AmbientLight(0xffffff, 0.6);
+            light.layers.enable(0);
+            light.layers.enable(1);
+            scene.add(light); 
+            that.initBloom()
+            that.setRendererRenderScene()
+            main()
+            render();
+        };
+        threeLayer.addTo(map); 
+        maptalks.ThreeLayer.prototype.initBloom = function () {
+            const params = {
+                exposure: 1,
+                bloomStrength: 3.5,
+                bloomThreshold: 0,
+                bloomRadius: 0.8,
+                debug: false
+            };
+            const renderer = this.getThreeRenderer();
+            const size = this.getMap().getSize();
+            this.composer = new THREE.EffectComposer(renderer);
+            this.composer.setSize(size.width, size.height);
+
+            const scene = this.getScene(), camera = this.getCamera();
+            this.renderPass = new THREE.RenderPass(scene, camera);
+
+            this.composer.addPass(this.renderPass);
+
+            const bloomPass = this.bloomPass = new THREE.UnrealBloomPass(new THREE.Vector2(size.width, size.height));
+            bloomPass.renderToScreen = true;
+            bloomPass.threshold = params.bloomThreshold;
+            bloomPass.strength = params.bloomStrength;
+            bloomPass.radius = params.bloomRadius;
+
+            // composer.setSize(size.width, size.height);
+            // composer.addPass(renderPass);
+            this.composer.addPass(bloomPass);
+            this.bloomEnable = true;
+        }
+        maptalks.ThreeLayer.prototype.setRendererRenderScene = function () {
+            this.getRenderer().renderScene = function () {
+                const layer = this.layer;
+                layer._callbackBaseObjectAnimation();
+                this._syncCamera();
+
+                const renderer = this.context, camera = this.camera, scene = this.scene;
+                if (layer.bloomEnable && layer.composer && layer.composer.passes.length > 1) {
+                    if (renderer.autoClear) {
+                        renderer.autoClear = false;
+                    }
+                    if (layer.bloomPass) {
+                        camera.layers.set(1);
+                    }
+                    if (layer && layer.composer) {
+                        layer.composer.render(0);
+                    }
+                    renderer.clearDepth();
+                    camera.layers.set(0);
+                    renderer.render(scene, camera);
+                } else {
+                    if (!renderer.autoClear) {
+                        renderer.autoClear = true;
+                    }
+                    renderer.render(scene, camera);
+                }
+
+                this.completeRender();
+            }
+        }
+        function render() {
+            threeLayer._needsUpdate = !threeLayer._needsUpdate;
+            if (threeLayer._needsUpdate) {
+                threeLayer.renderScene();
+            }
+            requestAnimationFrame(render);
+        }
+        function main(){
+            var url='./model/'
+            var mtlLoader2 = new THREE.MTLLoader();
+            mtlLoader2.load( url+'mesh.mtl', function( materials ) {
+                var objLoader = new THREE.OBJLoader();
+                objLoader.setMaterials( materials );
+                objLoader.load( url+'mesh.obj', function ( object ) {
+                    object.traverse( function ( child ) {
+                        if ( child.type==='Mesh' ) { 
+                            child.layers.set(1);
+                            child.scale.set(0.01, 0.01, 0.01);
+                            child.rotation.set(Math.PI * 1 / 2, -0.3,0);
+                        }
+                        if ( child.type==='Group' ) {
+                        }
+                    });
+                    var model=threeLayer.toModel(object,{
+                        coordinate:[118.786500,32.02697],
+                        altitude:0
+                    });
+                    
+                    threeLayer.addMesh(model);
+                });
+            });
+        }
+
+
+    </script>
+</body>
+
+</html>
