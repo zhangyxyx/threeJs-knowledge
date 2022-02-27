@@ -12,3 +12,6 @@
 5. 流动的连线
 6. 文字（中文文字）
 7. 地平线
+8. 透明物体选装一定角度之后，消失
+https://blog.csdn.net/qq_43140890/article/details/107980264?spm=1001.2101.3001.6650.5&utm_medium=distribute.pc_relevant.none-task-blog-2%7Edefault%7EBlogCommendFromBaidu%7ERate-5.pc_relevant_default&depth_1-utm_source=distribute.pc_relevant.none-task-blog-2%7Edefault%7EBlogCommendFromBaidu%7ERate-5.pc_relevant_default&utm_relevant_index=10
+9. 添加obj莫信
