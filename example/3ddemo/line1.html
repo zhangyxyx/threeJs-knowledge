@@ -63,8 +63,8 @@
 
     </script>
     <script type="module">
-        import * as THREE from 'example/build/three.module.js';
-        import { OrbitControls } from 'example/jsm/controls/OrbitControls.js';
+        import * as THREE from './build/three.module.js';
+        import { OrbitControls } from './jsm/controls/OrbitControls.js';
         var renderer, scene, camera, stats;
 
         var sphere;
@@ -114,7 +114,7 @@
 
                 color.toArray(colors, i * 3);
 
-                sizes[i] = 20; //线粗细
+                sizes[i] = 40; //线粗细
 
             }
             var curve = new THREE.CatmullRomCurve3();

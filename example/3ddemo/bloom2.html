@@ -15,6 +15,8 @@
     <script type="module">
       import * as THREE from "./build/three.module.js";
       import { OrbitControls } from "./jsm/controls/OrbitControls.js";
+      import { LineGeometry } from "./jsm/lines/LineGeometry.js";
+
       import { EffectComposer } from "./jsm/postprocessing/EffectComposer.js";
       import { UnrealBloomPass } from "./jsm/postprocessing/UnrealBloomPass.js";
       import { RenderPass } from "./jsm/postprocessing/RenderPass.js";
@@ -96,38 +98,10 @@
         const bloomBox = new THREE.Mesh(geometry, bloomMtl);
         bloomBox.position.z = 5;
         bloomBox.layers.set(1);
-        console.log(bloomBox)
+
         scene.add(bloomBox);
-
-
-       
-        // var url='./model/'
-        // var LoadingManager2=new THREE.LoadingManager()
-        // LoadingManager2.addHandler(/\.dds$/i, new DDSLoader())
-        // var mtlLoader2 = new MTLLoader();
-        // mtlLoader2.setPath(url );
-        // mtlLoader2.load( 'mesh.mtl', function( materials ) {
-        //     var objLoader = new OBJLoader();
-        //     objLoader.setMaterials( materials );
-        //     objLoader.setPath( url );
-        //     objLoader.load( 'mesh.obj', function ( object ) {
-        //         object.traverse( function ( child ) {
-        //             if ( child.type==='Mesh' ) { 
-        //                 child.layers.set(1);
-        //                 child.scale.set(0.5, 0.2, 0.5);
-        //                 //child.rotation.set(Math.PI * 1 / 2, -0.3,0);
-        //             }
-        //             if ( child.type==='Group' ) {
-        //                 for(var i=0;i<child.children.length;i++){
-        //                     var m=child.children[i]
-        //                     //m.layers.set(1);
-        //                 }
-        //             }
-        //         });
-        //         scene.add(object);
-        //     });
-        // });
-        
+         
+           
       };
       
 

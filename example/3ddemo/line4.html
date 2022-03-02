@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+  <title>Example 01 - flowing-lines</title>
+  <script type="text/javascript" src="./build/three.js"></script>
+  <script type="text/javascript" src="./js/controls/OrbitControls.js"></script>
+  <script type="text/javascript" src="./js/libs/stats.min.js"></script>
+  <script type="text/javascript" src="./modules/FlowingLine.js"></script>
+
+  <style>
+    body {
+      margin: 0;
+      overflow: hidden;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div id="Stats-output"></div>
+  <div id="WebGL-output"></div>
+
+  <script type="text/javascript">
+    let stats, controls;
+    let camera, scene, renderer;
+    let earthMesh, marsMesh;
+
+    function initScene() {
+      scene = new THREE.Scene();
+      //用一张图加载为纹理作为场景背景
+      scene.background = new THREE.TextureLoader().load("../assets/textures/starry-deep-outer-space-galaxy.jpg")
+
+    }
+
+    function initCamera() {
+      camera = new THREE.PerspectiveCamera(55, window.innerWidth / window.innerHeight, 1, 20000);
+      camera.position.set(20, 50, 100);
+    }
+
+    function initLight() {
+      //添加环境光
+      var ambientLight = new THREE.AmbientLight(0xffffff);
+      scene.add(ambientLight);
+
+      var spotLight = new THREE.SpotLight(0xffffff);
+      spotLight.position.set(25, 30, 50);
+      spotLight.castShadow = true;
+      scene.add(spotLight);
+    }
+
+
+    function initModel() {
+      createEarthMesh();
+      createMarshMesh();
+      createLines();
+    }
+
+
+    function createMarshMesh() {
+      var geom = new THREE.SphereGeometry(4, 40, 40)
+      var planetTexture = new THREE.TextureLoader().load("./images/road.png");
+      var normalTexture = new THREE.TextureLoader().load("./images/road1.png");
+
+      var planetMaterial = new THREE.MeshPhongMaterial();
+      planetMaterial.normalMap = normalTexture;
+      planetMaterial.map = planetTexture;
+      // planetMaterial.shininess = 150;
+
+      marsMesh = new THREE.Mesh(geom, planetMaterial);
+      marsMesh.position.set(18, 3, -80)
+      scene.add(marsMesh)
+    }
+
+    function createEarthMesh() {
+      var geom = new THREE.SphereGeometry(10, 40, 40)
+      var planetTexture = new THREE.TextureLoader().load("../assets/textures/planets/Earth.png");
+      var specularTexture = new THREE.TextureLoader().load("../assets/textures/planets/EarthSpec.png");
+      var normalTexture = new THREE.TextureLoader().load("../assets/textures/planets/EarthNormal.png");
+
+
+      var planetMaterial = new THREE.MeshPhongMaterial();
+      planetMaterial.specularMap = specularTexture;
+      planetMaterial.specular = new THREE.Color(0x4444aa);
+
+
+      planetMaterial.normalMap = normalTexture;
+      planetMaterial.map = planetTexture;
+      //               planetMaterial.shininess = 150;
+
+      earthMesh = new THREE.Mesh(geom, planetMaterial);
+      scene.add(earthMesh)
+    }
+
+    //创建动态线条
+    function createLines() {
+
+      //蓝色环形线
+      const circleLine = new FlowingCircleLine(new THREE.CatmullRomCurve3(
+        [
+          new THREE.Vector3(-30, 0, -30),
+          new THREE.Vector3(-30, 0, 30),
+          new THREE.Vector3(30, 0, 30),
+          new THREE.Vector3(30, 0, -30)
+        ], true
+      ))
+      scene.add(circleLine)
+
+      //浅绿色活跃线
+      const circleLine1 = new FlowingLine(new THREE.CatmullRomCurve3(
+        [
+          new THREE.Vector3(-30, 0, -30),
+          new THREE.Vector3(-10, 20, 30),
+          new THREE.Vector3(10, 25, 30),
+          new THREE.Vector3(20, 15, 30),
+          new THREE.Vector3(30, 0, -30),
+          new THREE.Vector3(18, 3, -80)
+        ]
+      ), 36, {
+        r: 0.4,
+        g: 0.8,
+        b: 0.2
+      }, 3)
+      scene.add(circleLine1)
+
+
+      //垂直橙色线
+      const lineParams = {
+        linePath: new THREE.CatmullRomCurve3(
+          [
+            new THREE.Vector3(1, -100, -10),
+            new THREE.Vector3(1, 100, -10)
+          ]
+        ),
+        lineLength: 15,
+        lineColor: {
+          r: 1.0,
+          g: 0.3,
+          b: 0.1
+        },
+        moveSpeed: 5
+      }
+      const Yline = new FlowingLine(lineParams.linePath, lineParams.lineLength, 'red', lineParams
+        .moveSpeed)
+      scene.add(Yline)
+
+      const Yline1 = Yline.clone()
+      Yline1.position.set(-10, 10, 5)
+      scene.add(Yline1)
+
+      const Yline2 = Yline.clone()
+      Yline2.position.set(-30, 40, 5)
+      scene.add(Yline2)
+
+      //沿x轴蓝色线
+      const Xline = new FlowingLine()
+      scene.add(Xline)
+      //三条蓝色线
+      for (let i = 0; i < 3; i++) {
+        let tmpLine = Xline.clone()
+        tmpLine.position.x += i - 20
+        tmpLine.position.y += i - 20
+        tmpLine.position.z += i * 2 + 10
+
+        scene.add(tmpLine)
+        tmpLine = null
+      }
+    }
+
+    function initRender() {
+
+      renderer = new THREE.WebGLRenderer({
+        antialias: true,
+        alpha: true
+      })
+      //renderer.shadowMap.enabled = true // 显示阴影
+      renderer.setPixelRatio(window.devicePixelRatio);
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      renderer.setClearColor(0x0f2d48); //设置背景色
+      renderer.toneMapping = THREE.ACESFilmicToneMapping;
+      document.getElementById("WebGL-output").appendChild(renderer.domElement);
+    }
+    //初始化轨道控制器
+    function initControls() {
+      clock = new THREE.Clock() // 创建THREE.Clock对象，用于计算上次调用经过的时间
+      controls = new THREE.OrbitControls(camera, renderer.domElement)
+      //controls.autoRotate = true // 是否自动旋转
+    }
+
+    function initStats() {
+      stats = new Stats();
+      stats.setMode(0); // 0: fps, 1: ms
+      document.getElementById("Stats-output").appendChild(stats.domElement);
+    }
+
+    function render() {
+      renderer.autoClear = true
+      updateFun()
+      requestAnimationFrame(render);
+      renderer.render(scene, camera);
+    }
+
+    function updateFun() {
+      stats.update();
+      const delta = clock.getDelta() // 获取自上次调用的时间差
+      controls.update(delta) // 相机更新
+      earthMesh.rotation.y += 0.02
+      marsMesh.rotation.y += 0.01
+    }
+
+    //初始化
+    function init() {
+      initScene();
+      initCamera();
+      initLight();
+      initRender();
+      initStats();
+      initControls();
+      initModel();
+      render();
+    }
+
+    window.onload = init;
+  </script>
+</body>
+
+</html>
