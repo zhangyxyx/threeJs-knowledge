@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script type="text/javascript" src="./build/three.js"></script>
+    <script type="text/javascript" src="./js/controls/OrbitControls.js"></script>
+    <style>
+        body {
+            width: 100%;
+            height: 600px;
+            outline: none;
+            background-image: linear-gradient(rgb(0, 0, 1), rgb(119, 119, 237));
+        }
+    </style>
+  
+</head>
+<body>
+    <script>
+               /**
+         * 创建场景对象Scene
+         */
+         var scene = new THREE.Scene();
+
+        /**
+         * 光源设置
+         */
+        //  平行光1
+        var directionalLight = new THREE.DirectionalLight(0xffffff, 0.5);
+        directionalLight.position.set(400, 200, 300);
+        scene.add(directionalLight);
+        // 平行光2
+        var directionalLight2 = new THREE.DirectionalLight(0xffffff, 0.5);
+        directionalLight2.position.set(-400, -200, -300);
+        scene.add(directionalLight2);
+        //环境光
+        var ambient = new THREE.AmbientLight(0xffffff,0.4);
+        scene.add(ambient);
+        /**
+         * 相机设置
+         */
+        var width = window.innerWidth; //窗口宽度
+        var height = window.innerHeight; //窗口高度
+        var k = width / height; //窗口宽高比
+        var s = 150; //三维场景显示范围控制系数，系数越大，显示的范围越大
+        //创建相机对象
+        var camera = new THREE.OrthographicCamera(-s * k, s * k, s, -s, 1, 1000);
+        camera.position.set(400, 500, 300); //设置相机位置
+        camera.lookAt(scene.position); //设置相机方向(指向的场景对象)
+        /**
+         * 创建渲染器对象
+         */
+        var renderer = new THREE.WebGLRenderer({
+            alpha: true, // canvas是否包含alpha (透明度) 默认为 false
+            antialias: true,
+            precision: 'highp',
+        })
+        renderer.setClearAlpha(0.0) // 设置alpha，合法参数是一个 0.0 到 1.0 之间的浮点数
+
+
+        scene.add(new THREE.AxesHelper(300,300));
+        renderer.setSize(width, height); //设置渲染区域尺寸
+        // renderer.setClearColor(0xb9d3ff, 1); //设置背景颜色
+        document.body.appendChild(renderer.domElement); //body元素中插入canvas对象
+        //创建控件对象  相机对象camera作为参数   控件可以监听鼠标的变化，改变相机对象的属性
+        var controls = new THREE.OrbitControls(camera, renderer.domElement);
+
+
+    </script>
+</body>
+</html>

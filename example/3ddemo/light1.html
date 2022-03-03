@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="./build/three.js"></script>
+    <script src="./js/controls/OrbitControls.js"></script> 
+    <style>
+        *{margin:0px;padding:0px;}
+        
+    </style>
+</head>
+<body>
+    <script>
+        var cube1
+         var scene = new THREE.Scene();
+        //  平行光1
+        var ambient = new THREE.AmbientLight(0xffffff, 1);
+        scene.add(ambient);
+
+        var spotLight = new THREE.SpotLight(0xffffff);
+        spotLight.position.set(-40,30,-10);
+        spotLight.castShadow = true;
+        scene.add(spotLight);
+
+        // var spotLight1 = new THREE.SpotLight(0xffffff);
+        // spotLight1.position.set(0,20,10);
+        // spotLight1.castShadow = true;
+        //scene.add(spotLight1);
+
+
+        lightHelper = new THREE.SpotLightHelper( spotLight,0x000000 );
+        //lightHelper1 = new THREE.SpotLightHelper( spotLight1,0x000000 );  
+        scene.add(lightHelper)
+        //scene.add(lightHelper2)
+  
+        /**
+         * 相机设置
+         */
+        var width = window.innerWidth; //窗口宽度
+        var height = window.innerHeight; //窗口高度
+        var camera = new THREE.PerspectiveCamera(45,window.innerWidth/window.innerHeight,0.1,1000);//相机构建
+        camera.position.x = 100;
+        camera.position.y = 80;
+        camera.position.z = 100;
+        camera.lookAt(scene.position)
+
+        shadowCameraHelper = new THREE.CameraHelper(camera);
+        //scene.add(shadowCameraHelper)
+        /**
+         * 创建渲染器对象
+         */
+        var renderer = new THREE.WebGLRenderer({
+            antialias: true, //开启锯齿
+        });
+        renderer.shadowMapEnabled = true;
+        scene.add(new THREE.AxesHelper(300,300));
+        renderer.setSize(width, height); //设置渲染区域尺寸 
+        document.body.appendChild(renderer.domElement); //body元素中插入canvas对象
+        //创建控件对象  相机对象camera作为参数   控件可以监听鼠标的变化，改变相机对象的属性
+        var controls = new THREE.OrbitControls(camera, renderer.domElement);
+
+        main()
+        render();
+        function render() {
+            renderer.render(scene, camera);
+            requestAnimationFrame(render);
+        }
+        function main(){
+            var geometry = new THREE.PlaneBufferGeometry( 200, 300, 32 );
+            var material = new THREE.MeshLambertMaterial( {color: '#ccc', side: THREE.DoubleSide} );
+            var plane = new THREE.Mesh( geometry, material );
+            plane.position.set(0,0,0)
+            plane.rotateX(Math.PI/2)
+            plane.receiveShadow = true;
+            scene.add( plane );
+
+
+            var geometry = new THREE.BoxBufferGeometry( 5, 5, 5 );
+            var material = new THREE.MeshLambertMaterial( {color: 'red'} );
+            var cube = new THREE.Mesh( geometry, material );
+            cube.position.set(0,10,0,)
+            cube.castShadow = true;
+            scene.add( cube );
+
+
+            var geometry1 = new THREE.BoxBufferGeometry( 5, 5, 5 );
+            var material1 = new THREE.MeshLambertMaterial( {color: 'red'} );
+            cube1 = new THREE.Mesh( geometry1, material1 );
+            cube1.position.set(0,10,50)
+            cube1.castShadow = true;
+            scene.add( cube1 );
+
+            var geometry2 = new THREE.BoxBufferGeometry( 5, 5, 5 );
+            var material2 = new THREE.MeshLambertMaterial( {color: 'red'} );
+            var cube2 = new THREE.Mesh( geometry2, material2 );
+            cube2.position.set(50,10,60)
+            cube2.castShadow = true;
+            scene.add( cube2 );
+            
+        }
+        
+    </script>
+</body>
+</html>
