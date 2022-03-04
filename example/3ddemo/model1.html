@@ -5,28 +5,16 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
-    <script type="text/javascript" src="./build/three.js"></script>
-    <script type="text/javascript" src="./js/controls/OrbitControls.js"></script>
-    <style>
-        body {
-            width: 100%;
-            height: 600px;
-            outline: none;
-            background-image: linear-gradient(rgb(0, 0, 1), rgb(119, 119, 237));
-        }
-    </style>
-  
+    <script src="./build/three.js"></script>
+    <script src="./js/controls/OrbitControls.js"></script>
+    <script src="./js/loaders/DDSLoader.js" ></script>
+    <script src="./js/loaders/MTLLoader.js" ></script>
+	<script src="./js/loaders/OBJLoader.js" ></script>
 </head>
 <body>
     <script>
-               /**
-         * 创建场景对象Scene
-         */
-         var scene = new THREE.Scene();
-
-        /**
-         * 光源设置
-         */
+        var modelmesh
+        var scene = new THREE.Scene();
         //  平行光1
         var directionalLight = new THREE.DirectionalLight(0xffffff, 0.5);
         directionalLight.position.set(400, 200, 300);
@@ -57,21 +45,42 @@
             antialias: true,
             precision: 'highp',
         })
-        renderer.setClearAlpha(0.0) // 设置alpha，合法参数是一个 0.0 到 1.0 之间的浮点数
-
 
         scene.add(new THREE.AxesHelper(300,300));
         renderer.setSize(width, height); //设置渲染区域尺寸
-        // renderer.setClearColor(0xb9d3ff, 1); //设置背景颜色
+        renderer.setClearColor(0xb9d3ff, 1); //设置背景颜色
         document.body.appendChild(renderer.domElement); //body元素中插入canvas对象
         //创建控件对象  相机对象camera作为参数   控件可以监听鼠标的变化，改变相机对象的属性
         var controls = new THREE.OrbitControls(camera, renderer.domElement);
-
         function render() {
+            if(modelmesh){
+                modelmesh.rotation.y += 0.04;
+            }
             renderer.render(scene, camera);
             requestAnimationFrame(render);
         }
+        addmodel()
         render();
+
+        function addmodel(){
+            var onProgress = function(xhr) {
+            };
+            var onError = function(xhr) {};
+            var mtlLoader = new THREE.MTLLoader();
+            mtlLoader.load('/model/dev.mtl', function(materials) {
+                materials.preload();
+                var objLoader = new THREE.OBJLoader();
+                objLoader.setMaterials(materials);
+                objLoader.load('/model/dev.obj', function(object) {
+                    
+                    object.rotateY(-Math.PI/2); 
+                    object.scale.set(0.5,0.5,0.5); 
+                    modelmesh=object
+                    scene.add(object);
+                    
+                }, onProgress, onError);
+            });
+        }
     </script>
 </body>
 </html>

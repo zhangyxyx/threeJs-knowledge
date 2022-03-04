@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="./build/three.js"></script>
+    <script src="./js/controls/OrbitControls.js"></script>
+    <script src="./js/loaders/DDSLoader.js" ></script>
+    <script src="./js/loaders/MTLLoader.js" ></script>
+	<script src="./js/loaders/OBJLoader.js" ></script>
+    <script src="./modules/tweenjs.js" ></script>
+</head>
+<body>
+    <script>
+        var modelmesh1,modelmesh2,modelmesh3,modelmesh4
+        var scene = new THREE.Scene();
+        //  平行光1
+        var directionalLight = new THREE.DirectionalLight(0xffffff, 0.5);
+        directionalLight.position.set(400, 200, 300);
+        scene.add(directionalLight);
+        // 平行光2
+        var directionalLight2 = new THREE.DirectionalLight(0xffffff, 0.5);
+        directionalLight2.position.set(-400, -200, -300);
+        scene.add(directionalLight2);
+        //环境光
+        var ambient = new THREE.AmbientLight(0xffffff,0.4);
+        scene.add(ambient);
+        /**
+         * 相机设置
+         */
+        var width = window.innerWidth; //窗口宽度
+        var height = window.innerHeight; //窗口高度
+        var k = width / height; //窗口宽高比
+        var s = 80; //三维场景显示范围控制系数，系数越大，显示的范围越大
+        //创建相机对象
+        var camera = new THREE.PerspectiveCamera(70,window.innerWidth / window.innerHeight,1,100000);
+        camera.position.set(40, 40,-60)
+        camera.lookAt(scene.position);
+        // var camera = new THREE.OrthographicCamera(-s * k, s * k, s, -s, 1, 1000);
+        // camera.position.set(30, 50, 10); //设置相机位置
+        // camera.lookAt(scene.position); //设置相机方向(指向的场景对象)
+        /**
+         * 创建渲染器对象
+         */
+        var renderer = new THREE.WebGLRenderer({
+            alpha: true, // canvas是否包含alpha (透明度) 默认为 false
+            antialias: true,
+            precision: 'highp',
+        })
+
+        scene.add(new THREE.AxesHelper(300,300));
+        renderer.setSize(width, height); //设置渲染区域尺寸
+        renderer.setClearColor(0xb9d3ff, 1); //设置背景颜色
+        document.body.appendChild(renderer.domElement); //body元素中插入canvas对象
+        //创建控件对象  相机对象camera作为参数   控件可以监听鼠标的变化，改变相机对象的属性
+        var controls = new THREE.OrbitControls(camera, renderer.domElement);
+        function render() {
+            // if(modelmesh){
+            //     modelmesh.rotation.y += 0.04;
+            // }
+     
+            renderer.render(scene, camera);
+            requestAnimationFrame(render);
+        }
+        addmodel1()
+        addmodel2()
+        addmodel3()
+        addmodel4()
+        
+        render();
+        setTimeout(function(){
+            tw()
+        },1000)
+        function tw(){
+            var time=5000
+            if(modelmesh1&&modelmesh2&&modelmesh3){
+                createjs.Tween.get(modelmesh1.position)
+                .to({x:0,y:0,z:-20},time)
+                .call(function(){
+                    createjs.Tween.get(modelmesh1.position)
+                    .to({x:0,y:0,z:0},time)
+                    .call(function(){
+                        
+                    });
+                });
+
+                createjs.Tween.get(modelmesh2.position)
+                .to({x:0,y:-1,z:-20},time)
+                .call(function(){
+                    createjs.Tween.get(modelmesh2.position)
+                    .to({x:0,y:0,z:0},time)
+                    .call(function(){
+                });
+                });
+          
+                var rotatex3=modelmesh3.rotation.x
+                var rotatey3=modelmesh3.rotation.y
+                var rotatez3=modelmesh3.rotation.z
+                createjs.Tween.get(modelmesh3.rotation)
+                .to({x:-Math.PI/3,y:rotatey3,z:rotatez3},time)
+                .call(function(){
+                    createjs.Tween.get(modelmesh3.rotation)
+                    .to({x:0,y:-Math.PI/2,z:0},time)
+                    .call(function(){
+                    });
+                });
+                createjs.Tween.get(modelmesh3.position)
+                .to({x:0,y:3,z:7},time)
+                .call(function(){
+                    createjs.Tween.get(modelmesh3.position)
+                    .to({x:0,y:0,z:0},time)
+                    .call(function(){
+                    });
+                });
+            }
+        }
+        function addmodel1(){
+            var onProgress = function(xhr) {
+            };
+            var onError = function(xhr) {};
+            var mtlLoader = new THREE.MTLLoader();
+            mtlLoader.load('/model/dev/dev1_1.mtl', function(materials) {
+                materials.preload();
+                var objLoader = new THREE.OBJLoader();
+                objLoader.setMaterials(materials);
+                objLoader.load('/model/dev/dev1_1.obj', function(object) {
+                    object.rotateY(-Math.PI/2); 
+                    object.scale.set(0.5,0.5,0.5); 
+                    modelmesh1=object
+                    scene.add(object);
+                    
+                }, onProgress, onError);
+            });
+        }
+        function addmodel2(){
+            var onProgress = function(xhr) {
+            };
+            var onError = function(xhr) {};
+            var mtlLoader = new THREE.MTLLoader();
+            mtlLoader.load('/model/dev/dev1_2.mtl', function(materials) {
+                materials.preload();
+                var objLoader = new THREE.OBJLoader();
+                objLoader.setMaterials(materials);
+                objLoader.load('/model/dev/dev1_2.obj', function(object) {
+                    
+                    object.rotateY(-Math.PI/2); 
+                    object.scale.set(0.5,0.5,0.5); 
+                    modelmesh2=object
+                    scene.add(object);
+                    
+                }, onProgress, onError);
+            });
+        }
+        function addmodel3(){
+            var onProgress = function(xhr) {
+            };
+            var onError = function(xhr) {};
+            var mtlLoader = new THREE.MTLLoader();
+            mtlLoader.load('/model/dev//dev1_3.mtl', function(materials) {
+                materials.preload();
+                var objLoader = new THREE.OBJLoader();
+                objLoader.setMaterials(materials);
+                objLoader.load('/model/dev//dev1_3.obj', function(object) {
+                    object.rotateY(-Math.PI/2); 
+                    object.scale.set(0.5,0.5,0.5); 
+                    modelmesh3=object
+                    scene.add(object);
+                    
+                }, onProgress, onError);
+            });
+        }
+        function addmodel4(){
+            var onProgress = function(xhr) {
+            };
+            var onError = function(xhr) {};
+            var mtlLoader = new THREE.MTLLoader();
+            mtlLoader.load('/model/dev/dev1_4.mtl', function(materials) {
+                materials.preload();
+                var objLoader = new THREE.OBJLoader();
+                objLoader.setMaterials(materials);
+                objLoader.load('/model/dev/dev1_4.obj', function(object) {
+                    object.rotateY(-Math.PI/2); 
+                    object.scale.set(0.5,0.5,0.5); 
+                    modelmesh4=object
+                    scene.add(object);
+                   
+                }, onProgress, onError);
+            });
+        }
+    </script>
+</body>
+</html>
