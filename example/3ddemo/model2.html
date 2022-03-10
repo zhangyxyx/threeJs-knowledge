@@ -71,7 +71,10 @@
         
         render();
         setTimeout(function(){
-            tw()
+            //tw()
+            setInterval(function(){
+                tw()
+            },10000)
         },1000)
         function tw(){
             var time=5000
@@ -85,7 +88,6 @@
                         
                     });
                 });
-
                 createjs.Tween.get(modelmesh2.position)
                 .to({x:0,y:-1,z:-20},time)
                 .call(function(){
